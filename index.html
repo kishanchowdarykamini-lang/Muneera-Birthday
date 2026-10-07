@@ -136,6 +136,8 @@ footer .big{font-family:var(--display);font-size:clamp(1.5rem,5vw,2.4rem);color:
 .gbox.open .msg{opacity:1;transform:none}
 .msg b{font-family:var(--display);font-size:clamp(1.25rem,4.2vw,1.7rem);color:var(--gold);line-height:1.15;margin-bottom:8px}
 .msg span{font-size:.92rem;line-height:1.45;color:rgba(255,246,234,.9)}
+.vid{text-align:center}
+.vid video{width:100%;max-width:420px;max-height:80vh;border-radius:26px;border:1px solid rgba(245,201,123,.35);box-shadow:0 24px 60px rgba(0,0,0,.5);background:#000;display:block;margin:0 auto}
 .fin{max-width:34rem;margin:10px auto 0;animation:pop .9s cubic-bezier(.2,1.6,.4,1) both}
 .fin p{font-family:var(--display);font-size:clamp(1.3rem,4vw,1.8rem);line-height:1.4;font-weight:500}
 .fin .sign{margin-top:14px}
@@ -193,15 +195,20 @@ footer .btn+.btn{margin-left:10px}
 
 <section id="why">
   <div class="quals">
-    <p>You helps every one of us grow.</p>
-    <p>You teaches us with patience and a smile.</p>
-    <p>You gives us the chance to lead.</p>
+    <p>You help every one of us grow.</p>
+    <p>You teach us with patience and a smile.</p>
+    <p>You give us the chance to lead.</p>
   </div>
 </section>
 
 <section id="memories" hidden>
   <h2>Our favourite person</h2>
   <div class="polas" id="polas"></div>
+</section>
+
+<section id="video" class="vid" hidden>
+  <h2>A little something for you</h2>
+  <video id="vid" controls playsinline preload="metadata"></video>
 </section>
 
 <section id="wishes">
@@ -299,7 +306,7 @@ if (PHOTOS.length){
 
 /* Date chip */
 const bd = new Date(CONFIG.birthday+"T00:00:00");
-$('chip').textContent = new Date().toDateString()===bd.toDateString() ? "Today is her day" : bd.toLocaleDateString('en-IN',{day:'numeric',month:'long'});
+$('chip').textContent = new Date().toDateString()===bd.toDateString() ? "Today is your day" : bd.toLocaleDateString('en-IN',{day:'numeric',month:'long'});
 
 /* Stars, balloons, petals */
 (function(){
@@ -396,6 +403,13 @@ document.addEventListener('click',e=>{
 });
 addEventListener('hashchange',route); route();
 addEventListener('keydown',e=>{ if(e.key==='Escape'&&$('gp').classList.contains('show')){ setGifts(false); try{history.replaceState(null,'',location.pathname+location.search)}catch(_){} } });
+
+/* Optional video: put birthday.mp4 next to index.html. Section stays hidden if the file is missing. */
+(function(){
+  const v=$('vid'); v.addEventListener('loadedmetadata',()=>{ $('video').hidden=false });
+  v.addEventListener('play',()=>{ if(playing) setMusic(false) });
+  v.src='birthday.mp4';
+})();
 
 /* Wish cards reveal on scroll */
 (function(){ const cards=[...document.querySelectorAll('.card')];
