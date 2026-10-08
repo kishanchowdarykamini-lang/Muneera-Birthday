@@ -142,6 +142,23 @@ footer .big{font-family:var(--display);font-size:clamp(1.5rem,5vw,2.4rem);color:
 .fin p{font-family:var(--display);font-size:clamp(1.3rem,4vw,1.8rem);line-height:1.4;font-weight:500}
 .fin .sign{margin-top:14px}
 footer .btn+.btn{margin-left:10px}
+.cake-wrap.cuttable{cursor:pointer}
+.cake-wrap.cuttable:focus-visible{outline:3px solid #fff;outline-offset:8px;border-radius:20px}
+#slice{visibility:hidden;transform-origin:205px 244px;transition:transform .9s cubic-bezier(.3,1.35,.5,1)}
+.cut #slice{visibility:visible;transform:translate(52px,12px) rotate(10deg)}
+.cheers{position:absolute;left:50%;top:6%;font-family:var(--display);font-style:italic;font-weight:700;font-size:clamp(1.6rem,6vw,2.2rem);color:var(--gold);opacity:0;pointer-events:none;white-space:nowrap}
+.cut .cheers{animation:cheers 1.9s ease-out forwards}
+@keyframes cheers{0%{opacity:0;transform:translate(-50%,10px) scale(.5)}20%{opacity:1;transform:translate(-50%,0) scale(1.15)}100%{opacity:0;transform:translate(-50%,-80px) scale(1)}}
+.wallx{margin-top:30px;text-align:center}
+.wallx .wall{text-align:left}
+.wallx h3{font-family:var(--display);font-size:1.6rem;margin:34px 0 16px;text-align:left}
+#wMsg{margin-top:12px;color:var(--gold);min-height:1.5em}
+.wf{max-width:460px;margin:16px auto 0;display:grid;gap:12px;text-align:left}
+.wf input,.wf textarea{width:100%;font:inherit;font-size:16px;color:var(--ivory);background:rgba(255,246,234,.08);border:1px solid rgba(245,201,123,.35);border-radius:16px;padding:13px 16px;resize:vertical}
+.wf input::placeholder,.wf textarea::placeholder{color:rgba(255,246,234,.5)}
+.wf input:focus-visible,.wf textarea:focus-visible{outline:3px solid #fff;outline-offset:2px}
+.wf .btn{justify-self:start;margin-top:0}
+.wf .btn:disabled{opacity:.6;cursor:default}
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}html{scroll-behavior:auto}.card{opacity:1;transform:none}}
 </style>
 </head>
@@ -164,13 +181,17 @@ footer .btn+.btn{margin-left:10px}
         <linearGradient id="g2" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff6ea"/><stop offset="1" stop-color="#f5c97b"/></linearGradient>
         <radialGradient id="gl"><stop offset="0" stop-color="#ffd27a" stop-opacity=".9"/><stop offset="1" stop-color="#ffd27a" stop-opacity="0"/></radialGradient>
         <linearGradient id="fl" x1="0" y1="1" x2="0" y2="0"><stop offset="0" stop-color="#ff8a3d"/><stop offset=".6" stop-color="#ffd24a"/><stop offset="1" stop-color="#fff6c8"/></linearGradient>
-      </defs>
-      <ellipse cx="150" cy="248" rx="125" ry="9" fill="#000" opacity=".25"/>
-      <rect x="40" y="170" width="220" height="74" rx="16" fill="url(#g1)"/>
+      <g id="cakeBody"><rect x="40" y="170" width="220" height="74" rx="16" fill="url(#g1)"/>
       <path d="M40 188c18 14 32 14 50 0s32-14 50 0 32 14 50 0 32-14 50 0 18 8 20 4v-12H40z" fill="#fff6ea" opacity=".9"/>
       <rect x="70" y="118" width="160" height="60" rx="14" fill="url(#g2)"/>
       <path d="M70 134c14 12 26 12 40 0s26-12 40 0 26 12 40 0 26-12 40 0v-8H70z" fill="#ff7a9a" opacity=".85"/>
-      <circle cx="95" cy="214" r="5" fill="#fff6ea"/><circle cx="150" cy="222" r="5" fill="#f5c97b"/><circle cx="205" cy="214" r="5" fill="#fff6ea"/>
+      <circle cx="95" cy="214" r="5" fill="#fff6ea"/><circle cx="150" cy="222" r="5" fill="#f5c97b"/><circle cx="205" cy="214" r="5" fill="#fff6ea"/></g>
+        <clipPath id="mainClip"><rect x="0" y="0" width="205" height="260"/></clipPath>
+        <clipPath id="sliceClip"><rect x="205" y="0" width="95" height="260"/></clipPath>
+      </defs>
+      <ellipse cx="150" cy="248" rx="125" ry="9" fill="#000" opacity=".25"/>
+      <use id="mainUse" href="#cakeBody"/>
+      <g id="slice"><use href="#cakeBody" clip-path="url(#sliceClip)"/></g>
       <rect x="143" y="76" width="14" height="46" rx="4" fill="#fff6ea"/>
       <path d="M143 90l14 6M143 104l14 6" stroke="#ff7a9a" stroke-width="4"/>
       <circle class="glow" cx="150" cy="56" r="46" fill="url(#gl)"/>
@@ -180,6 +201,7 @@ footer .btn+.btn{margin-left:10px}
         <rect x="120" y="20" width="60" height="60" fill="transparent"/>
       </g>
     </svg>
+    <span class="cheers" id="cheers" aria-hidden="true">Cheers!</span>
   </div>
   <p class="hint" id="hint" aria-live="polite">Tap the flame to blow out the candle</p>
   <div class="cta"><a class="btn" href="#letter">Read the wishes</a><a class="btn alt" href="#gifts">Open your gifts</a></div>
@@ -215,6 +237,17 @@ footer .btn+.btn{margin-left:10px}
   <h2>Wishes from the team</h2>
   <p class="lede">A few words from the people who are lucky to work with you.</p>
   <div class="wall" id="wall"></div>
+  <div class="wallx" id="wallx" hidden>
+    <button class="btn alt" id="addBtn" type="button" aria-expanded="false">Add your wish</button>
+    <p id="wMsg" role="status"></p>
+    <form class="wf" id="wf" hidden>
+      <input id="wName" maxlength="40" placeholder="Your name" autocomplete="name" aria-label="Your name" required>
+      <textarea id="wText" maxlength="240" rows="4" placeholder="Write your wish for Muneera" aria-label="Your wish" required></textarea>
+      <button class="btn" id="wSend" type="submit">Send wish</button>
+    </form>
+    <h3 id="moreH" hidden>More from the team</h3>
+    <div class="wall" id="wall2"></div>
+  </div>
 </section>
 </main>
 
@@ -252,15 +285,16 @@ const CONFIG = {
   ],
   signoff: "With love and gratitude, Team New Age Alpha",
   wishes: [
-    { from: "Bhargav", role: "CEO", text: "Muneera, you lift the whole team up without ever making it look like work. Thank you for everything, and happy birthday!" },
-    { from: "Kishan", role: "Creative Designer", text: "Thank you for trusting me with bigger responsibilities and teaching me to lead, not just to design. Happy birthday, Muneera!" },
-    { from: "Jasmine", role: "Designer", text: "You make every one of us feel heard. Wishing you a year as colorful as the ideas you let us try." },
-    { from: "Somya", role: "Designer", text: "Thank you for always having time to guide us and for believing in us before we believe in ourselves. Happy birthday!" },
-    { from: "Vanshika", role: "Virtual Assistant", text: "You are so friendly and supportive that work feels like a team of friends. Have the happiest birthday!" },
-    { from: "Divya", role: "Jr. Marketing Operations Manager", text: "You gave me the confidence to take the lead and the support to get it right. Thank you, and happy birthday!" },
-    { from: "Pratibha", role: "Designer", text: "Thank you for helping us learn something new every single day. Wishing you joy, health and all the good things." },
-    { from: "The whole team", role: "And many more of us", text: "Every one of us has grown because of you. Thank you for turning teammates into leaders. Happy birthday, Muneera!" }
+    { from: "Kishan", text: "Thank you for trusting me with bigger responsibilities and teaching me to lead, not just to design. Happy birthday, Muneera!" },
+    { from: "The whole team", text: "Every one of us has grown because of you. Thank you for turning teammates into leaders. Happy birthday, Muneera!" }
   ],
+  /* Team wish wall (optional). Leave empty and it stays hidden. Steps are in the chat message. */
+  wishWall: {
+    form: "https://docs.google.com/forms/d/e/1FAIpQLSeyQ4FOUptYhHVjpITmC6UvsprJzOWjB-Cg6icGcMbWu6iDpw/viewform",        // your Google Form link, the one ending in /viewform
+    nameEntry: "entry.559352220",   // e.g. "entry.1234567890" (the Name question)
+    wishEntry: "entry.924523986",   // e.g. "entry.9876543210" (the Wish question)
+    csv: "https://docs.google.com/spreadsheets/d/e/2PACX-1vQp3o49ovtRbfG6-hkvBJi-wP2Twdtc-8SWmZhVefRM_GKMzu1TR9Irgel_-QOCyyjJEUWcoOdAhyvX/pub?gid=27158395&single=true&output=csv"          // the published CSV link of the form's responses sheet
+  },
   giftsIntro: "Six gifts are waiting. Tap each one to open it.",
   gifts: [
     { title: "Good health", text: "A year of strong health and plenty of rest." },
@@ -365,7 +399,8 @@ $('music').addEventListener('click',()=>{ manual=true; setMusic(!playing) });
 const flame=$('flame');
 function blow(){ if(document.body.classList.contains('revealed')) return;
   $('cake').classList.add('out'); document.body.classList.add('revealed');
-  $('hint').textContent="Make a wish. Happy Birthday, "+CONFIG.name+"!";
+  $('hint').textContent="Make a wish, "+CONFIG.name+"! Now tap the cake to cut it.";
+  const ck=$('cake'); ck.classList.add('cuttable'); ck.tabIndex=0; ck.setAttribute('role','button'); ck.setAttribute('aria-label','Cut the cake');
   celebrate(); if(!playing && !manual) setMusic(true) }
 flame.addEventListener('click',blow);
 flame.addEventListener('keydown',e=>{ if(e.key==='Enter'||e.key===' '){e.preventDefault();blow()} });
@@ -403,6 +438,71 @@ document.addEventListener('click',e=>{
 });
 addEventListener('hashchange',route); route();
 addEventListener('keydown',e=>{ if(e.key==='Escape'&&$('gp').classList.contains('show')){ setGifts(false); try{history.replaceState(null,'',location.pathname+location.search)}catch(_){} } });
+
+
+/* Cut the cake */
+let cut=false;
+function cutCake(){
+  const ck=$('cake'); if(cut||!ck.classList.contains('cuttable')) return; cut=true;
+  $('mainUse').setAttribute('clip-path','url(#mainClip)');
+  ck.classList.add('cut'); ck.classList.remove('cuttable'); ck.removeAttribute('role'); ck.removeAttribute('tabindex');
+  $('hint').textContent="Cheers, "+CONFIG.name+"! Try popping a balloon too.";
+  if(!reduce){ const r=ck.getBoundingClientRect(); burst(60,r.left+r.width/2,r.top+r.height*.5); setTimeout(()=>firework(r.left+r.width*.2,r.top),250); setTimeout(()=>firework(r.left+r.width*.8,r.top),500) }
+}
+$('cake').addEventListener('click',e=>{ if(e.target.closest('#flame')) return; cutCake() });
+$('cake').addEventListener('keydown',e=>{ if(e.target.closest('#flame')) return; if(e.key==='Enter'||e.key===' '){ e.preventDefault(); cutCake() } });
+
+/* Pop the balloons */
+let pc=null;
+function popSound(){
+  if(manual&&!playing) return;
+  try{ const AC=window.AudioContext||window.webkitAudioContext; pc=pc||new AC(); if(pc.state==='suspended') pc.resume();
+    const n=(pc.sampleRate*.12)|0, buf=pc.createBuffer(1,n,pc.sampleRate), d=buf.getChannelData(0);
+    for(let i=0;i<n;i++) d[i]=(Math.random()*2-1)*Math.pow(1-i/n,4);
+    const src=pc.createBufferSource(), g=pc.createGain(); src.buffer=buf; g.gain.value=.45; src.connect(g).connect(pc.destination); src.start() }catch(_){}
+}
+function popBalloon(b,x,y){
+  b.dataset.p=1; b.style.visibility='hidden';
+  const c=(getComputedStyle(b).getPropertyValue('--c')||'#ff7a9a').trim();
+  for(let i=0;i<26;i++){ const a=Math.random()*6.283, v=1.5+Math.random()*4.5; parts.push({k:1,x,y,vx:Math.cos(a)*v,vy:Math.sin(a)*v,c,l:0,m:34+Math.random()*16}) }
+  go(); popSound();
+  setTimeout(()=>{ b.style.visibility=''; delete b.dataset.p },7000);
+}
+document.addEventListener('click',e=>{
+  if($('gp').classList.contains('show')) return;
+  if(e.target.closest('a,button,input,textarea,select,video,label,.card,.polas,#cake.cuttable')) return;
+  const hit=[...document.querySelectorAll('.balloon')].find(b=>{ if(b.dataset.p) return false; const r=b.getBoundingClientRect();
+    return e.clientX>=r.left-6&&e.clientX<=r.right+6&&e.clientY>=r.top-6&&e.clientY<=r.bottom+6 });
+  if(hit) popBalloon(hit,e.clientX,e.clientY);
+});
+
+/* Team wish wall (Google Form + published sheet) */
+(function(){
+  const W=CONFIG.wishWall; if(!W||!W.form||!W.nameEntry||!W.wishEntry) return;
+  $('wallx').hidden=false;
+  document.querySelector('#wishes .lede').textContent+=' Add yours below.';
+  const post=W.form.replace(/\/viewform.*$/,'/formResponse');
+  let mine=[], fetched=[];
+  const card=(n,t)=>'<article class="card in"><p>“'+esc(t)+'”</p><div class="who"><div class="av">'+esc((n.trim().charAt(0)||'?').toUpperCase())+'</div><div><b>'+esc(n)+'</b></div></div></article>';
+  const render=()=>{ const all=mine.concat(fetched); $('wall2').innerHTML=all.map(w=>card(w[0],w[1])).join(''); $('moreH').hidden=!all.length };
+  function parseCSV(t){ const rows=[]; let r=[],c='',q=false;
+    for(let i=0;i<t.length;i++){ const ch=t[i];
+      if(q){ if(ch==='"'){ if(t[i+1]==='"'){c+='"';i++} else q=false } else c+=ch }
+      else if(ch==='"') q=true; else if(ch===','){ r.push(c); c='' }
+      else if(ch==='\n'||ch==='\r'){ if(ch==='\r'&&t[i+1]==='\n') i++; r.push(c); rows.push(r); r=[]; c='' } else c+=ch }
+    if(c||r.length){ r.push(c); rows.push(r) } return rows }
+  if(W.csv){ fetch(W.csv+(W.csv.indexOf('?')>-1?'&':'?')+'t='+Date.now()).then(r=>r.text()).then(t=>{
+      fetched=parseCSV(t).slice(1).filter(r=>r[1]&&r[2]).map(r=>[r[1].slice(0,40),r[2].slice(0,240)]).reverse().slice(0,60); render() }).catch(()=>{}) }
+  $('addBtn').addEventListener('click',()=>{ const f=$('wf'); f.hidden=!f.hidden; $('addBtn').setAttribute('aria-expanded',!f.hidden); if(!f.hidden) $('wName').focus() });
+  $('wf').addEventListener('submit',e=>{
+    e.preventDefault(); const n=$('wName').value.trim().slice(0,40), t=$('wText').value.trim().slice(0,240); if(!n||!t) return;
+    const btn=$('wSend'); btn.disabled=true; const body=new URLSearchParams(); body.append(W.nameEntry,n); body.append(W.wishEntry,t);
+    fetch(post,{method:'POST',mode:'no-cors',body}).then(()=>{
+      mine.unshift([n,t]); render(); $('wf').reset(); $('wf').hidden=true; $('addBtn').setAttribute('aria-expanded','false');
+      $('wMsg').textContent="Thank you! Your wish is on the wall."; if(!reduce) burst(40,innerWidth/2,innerHeight*.6);
+    }).catch(()=>{ $('wMsg').textContent="Could not send. Please try again." }).finally(()=>setTimeout(()=>{ btn.disabled=false },4000));
+  });
+})();
 
 /* Optional video: put birthday.mp4 next to index.html. Section stays hidden if the file is missing. */
 (function(){
